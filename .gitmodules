@@ -1,0 +1,3 @@
+[submodule "middle-framework"]
+	path = www
+	url = https://github.com/dmtrbskkv/middle-framework.git
