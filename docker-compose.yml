@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  php:
+    build: docker/php
+    depends_on:
+      - database
+    working_dir: ${CONTAINERS_WORKDIR}
+    volumes:
+      - ${CONTAINERS_WORKDIR_LOCAL}:${CONTAINERS_WORKDIR}
+  node:
+    image: node:lts
+    working_dir: ${CONTAINERS_WORKDIR}
+    volumes:
+      - ${CONTAINERS_WORKDIR_LOCAL}:${CONTAINERS_WORKDIR}
+    command: "npm run watch"
+  nginx:
+    image: nginx:latest
+    depends_on:
+      - php
+      - node
+    ports:
+      - ${NGINX_EXTERNAL_PORT}:${NGINX_INTERNAL_PORT}
+    working_dir: ${CONTAINERS_WORKDIR}
+    volumes:
+      - ${CONTAINERS_WORKDIR_LOCAL}:${CONTAINERS_WORKDIR}
+      - ./docker/nginx/:/etc/nginx/conf.d/
+      - ./docker/nginx/log:/var/log/nginx/
+  database:
+    image: "mariadb"
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=${MYSQL_EMTRY_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ./docker/database:/var/lib/mysql
